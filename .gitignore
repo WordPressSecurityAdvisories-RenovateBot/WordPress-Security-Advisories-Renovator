@@ -10,4 +10,5 @@
 /vendor/
 
 # Mocked files
+*.mockedcomposer
 *.mockedfeed
