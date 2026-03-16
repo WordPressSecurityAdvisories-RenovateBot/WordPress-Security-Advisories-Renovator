@@ -44,5 +44,8 @@ try {
     $renovator = new ComposerConflictsUpgrader($github_controller, $logger, $wordfence_feed_service);
     $renovator->renovate(API_PAUSE_BETWEEN_ACTIONS_SECONDS);
 } catch (Exception $e) {
-    $logger->alert($e->getMessage());
+    $logger->alert($e->getMessage(), [
+        'trace'     => $e->getTrace(),
+        'exception' => $e,
+    ]);
 }
