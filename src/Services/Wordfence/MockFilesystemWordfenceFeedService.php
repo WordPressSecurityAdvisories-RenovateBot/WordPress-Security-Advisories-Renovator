@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace LTS\WordpressSecurityAdvisoriesUpgrader\Controllers\Wordfence;
+namespace LTS\WordpressSecurityAdvisoriesUpgrader\Services\Wordfence;
 
 /**
  * Mock for WordfenceController to work with it locally
  */
-class MockFilesystemWordfenceController implements WordfenceControllerInterface
+class MockFilesystemWordfenceFeedService implements WordfenceFeedServiceInterface
 {
     /**
      * @inheritdoc

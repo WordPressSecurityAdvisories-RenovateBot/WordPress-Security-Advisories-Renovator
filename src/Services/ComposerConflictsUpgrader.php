@@ -10,14 +10,12 @@ use Composer\Semver\VersionParser;
 use Exception;
 use Github\Exception\InvalidArgumentException;
 use Github\Exception\MissingArgumentException;
-use GuzzleHttp\Exception\GuzzleException;
-use JsonException;
 use LTS\WordpressSecurityAdvisoriesUpgrader\Controllers\GithubApiController;
-use LTS\WordpressSecurityAdvisoriesUpgrader\Controllers\Wordfence\WordfenceController;
-use LTS\WordpressSecurityAdvisoriesUpgrader\Controllers\Wordfence\WordfenceControllerInterface;
 use LTS\WordpressSecurityAdvisoriesUpgrader\DTO\ConflictSectionUpgradeResult;
+use LTS\WordpressSecurityAdvisoriesUpgrader\Services\Wordfence\WordfenceFeedServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Throwable;
 
 /**
  * Service to upgrade dependencies
@@ -40,15 +38,15 @@ class ComposerConflictsUpgrader
     protected array $composer_json_content;
 
     /**
-     * @param GithubApiController          $github_api_controller
-     * @param LoggerInterface              $logger
-     * @param WordfenceControllerInterface $wordfence_controller
-     * @param VersionParser                $version_parser
+     * @param GithubApiController           $github_api_controller
+     * @param LoggerInterface               $logger
+     * @param WordfenceFeedServiceInterface $wordfence_feed_service
+     * @param VersionParser                 $version_parser
      */
     public function __construct(
         protected readonly GithubApiController $github_api_controller,
         protected readonly LoggerInterface $logger,
-        protected readonly WordfenceControllerInterface $wordfence_controller = new WordfenceController(),
+        protected readonly WordfenceFeedServiceInterface $wordfence_feed_service,
         protected readonly VersionParser $version_parser = new VersionParser(),
     ) {
     }
@@ -56,9 +54,7 @@ class ComposerConflictsUpgrader
     /**
      * @param int $pause
      *
-     * @throws GuzzleException
-     * @throws JsonException
-     * @throws RuntimeException
+     * @throws Throwable
      * @return void
      */
     public function renovate(int $pause = 1): void
@@ -71,7 +67,7 @@ class ComposerConflictsUpgrader
         $this->composer_json_content = json_decode($file_content, associative: true, flags: JSON_THROW_ON_ERROR);
         $this->logger->info('Successfully parsed composer.json from repo!');
 
-        $feed = $this->wordfence_controller->getProductionFeed();
+        $feed = $this->wordfence_feed_service->getProductionFeed();
 
         $this->logger->info('Got production feed!');
 
