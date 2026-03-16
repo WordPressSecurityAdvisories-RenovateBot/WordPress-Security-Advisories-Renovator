@@ -30,4 +30,7 @@ jobs:
           REPO_NAME: ${{ vars.REPO_NAME }}
           API_PAUSE_BETWEEN_ACTIONS_SECONDS: ${{ vars.API_PAUSE_BETWEEN_ACTIONS_SECONDS }}
           IS_ENABLED: ${{ vars.IS_ENABLED }}
+          WORDFENCE_API_KEY: ${{ vars.WORDFENCE_API_KEY }}
+          WORDFENCE_SCANNER_FEED_URL: ${{ vars.WORDFENCE_SCANNER_FEED_URL }}
+          WORDFENCE_PRODUCTION_FEED_URL: ${{ vars.WORDFENCE_PRODUCTION_FEED_URL }}
         run: php composer_conflict_upgrade.php
