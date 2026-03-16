@@ -7,3 +7,7 @@ This repository is just a utility to bump versions of dependencies in 'conflict'
 ```shell
 docker-compose run --rm app sh
 ```
+or just
+```shell
+make shell
+```
