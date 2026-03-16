@@ -2,17 +2,18 @@
 
 declare(strict_types=1);
 
-namespace LTS\WordpressSecurityAdvisoriesUpgrader\Controllers\Wordfence;
+namespace LTS\WordpressSecurityAdvisoriesUpgrader\Services\Wordfence;
 
 use Exception;
+use Throwable;
 
 /**
  * Interface of controller that should act like a Wordfence API proxy
  */
-interface WordfenceControllerInterface
+interface WordfenceFeedServiceInterface
 {
     /**
-     * @throws Exception
+     * @throws Throwable
      * @return array{
      *     software: array{
      *         type: string,
@@ -25,7 +26,7 @@ interface WordfenceControllerInterface
     public function getScannerFeed(): array;
 
     /**
-     * @throws Exception
+     * @throws Throwable
      * @return array{
      *     software: array{
      *         type: string,

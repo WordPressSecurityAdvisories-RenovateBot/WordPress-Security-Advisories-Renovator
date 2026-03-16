@@ -3,8 +3,9 @@
 use Github\AuthMethod;
 use Github\Client;
 use LTS\WordpressSecurityAdvisoriesUpgrader\Controllers\GithubApiController;
-use LTS\WordpressSecurityAdvisoriesUpgrader\Controllers\Wordfence\WordfenceController;
 use LTS\WordpressSecurityAdvisoriesUpgrader\Services\ComposerConflictsUpgrader;
+use LTS\WordpressSecurityAdvisoriesUpgrader\Services\Wordfence\WordfenceFeedService;
+use LTS\WordpressSecurityAdvisoriesUpgrader\Utils\Environment;
 use Monolog\Handler\StreamHandler;
 use Monolog\Level;
 use Monolog\Logger;
@@ -34,9 +35,13 @@ try {
     if (!empty(FORK_REPO_OWNER) && !empty(FORK_REPO_NAME)) {
         $github_controller->setHeadRepository(FORK_REPO_OWNER, FORK_REPO_NAME);
     }
-    $wordfence_controller = new WordfenceController();
+    $wordfence_feed_service = new WordfenceFeedService(
+        Environment::getWordfenceApiKey(),
+        Environment::getWordfenceScannerFeedUrl(),
+        Environment::getWordfenceProductionFeedUrl()
+    );
 
-    $renovator = new ComposerConflictsUpgrader($github_controller, $logger, $wordfence_controller);
+    $renovator = new ComposerConflictsUpgrader($github_controller, $logger, $wordfence_feed_service);
     $renovator->renovate(API_PAUSE_BETWEEN_ACTIONS_SECONDS);
 } catch (Exception $e) {
     $logger->alert($e->getMessage());
