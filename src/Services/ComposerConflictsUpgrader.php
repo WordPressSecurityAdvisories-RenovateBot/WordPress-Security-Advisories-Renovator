@@ -67,7 +67,8 @@ class ComposerConflictsUpgrader
         $this->composer_json_content = json_decode($file_content, associative: true, flags: JSON_THROW_ON_ERROR);
         $this->logger->info('Successfully parsed composer.json from repo!');
 
-        $feed = $this->wordfence_feed_service->getProductionFeed();
+        $updated_composer_json_content = $this->composer_json_content;
+        $feed                          = $this->wordfence_feed_service->getProductionFeed();
 
         $this->logger->info('Got production feed!');
 
@@ -78,28 +79,35 @@ class ComposerConflictsUpgrader
                 continue;
             }
 
-            $upgrade_result = $this->upgradeConflictsForVulnerability($entry, $this->composer_json_content);
+            $upgrade_result = $this->upgradeConflictsForVulnerability($entry, $updated_composer_json_content);
             if (!$upgrade_result instanceof ConflictSectionUpgradeResult || !$upgrade_result->isUpgraded()) {
                 $this->logger->notice(sprintf('Not upgraded for id=%1$s', $entry_id));
                 continue;
             }
+            $updated_composer_json_content = $upgrade_result->getComposerJsonContent();
 
-            try {
-                $this->tryToCreatePullRequest($entry, $upgrade_result);
-                $this->logger->notice('!!! === Pull Request created === !!!');
-                sleep($pause);
-                continue;
-            } catch (Exception $e) {
-                $this->logger->warning(
-                    sprintf(
-                        'Something went wrong with id=%1$s, details: %2$s ; CONTINUE',
-                        $entry_id,
-                        $e->getMessage()
-                    )
-                );
-                continue;
-            }
+//            try {
+//                $this->tryToCreatePullRequest($entry, $upgrade_result);
+//                $this->logger->notice('!!! === Pull Request created === !!!');
+//                sleep($pause);
+//                continue;
+//            } catch (Exception $e) {
+//                $this->logger->warning(
+//                    sprintf(
+//                        'Something went wrong with id=%1$s, details: %2$s ; CONTINUE',
+//                        $entry_id,
+//                        $e->getMessage()
+//                    )
+//                );
+//                continue;
+//            }
         }
+
+        $new_composer_json_content = json_encode(
+            value: $updated_composer_json_content,
+            flags: JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+        );
+        file_put_contents('composer.json.mockedcomposer', $new_composer_json_content);
     }
 
     /**
