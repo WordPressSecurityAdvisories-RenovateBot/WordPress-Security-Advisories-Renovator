@@ -175,12 +175,21 @@ final class GithubApiController
             throw new RuntimeException(sprintf('Missing "%1$s" content', $path_to_file));
         }
 
-        $decoded_data = base64_decode(string: $file_data['content'], strict: true);
-        if (!is_string($decoded_data)) {
-            throw new RuntimeException(sprintf('Could not base64_decode "%1$s" content', $path_to_file));
-        }
+        switch (true) {
+            case (!empty($file_data['content'])):
+                $decoded_data = base64_decode(string: $file_data['content'], strict: true);
+                if (!is_string($decoded_data)) {
+                    throw new RuntimeException(sprintf('Could not base64_decode "%1$s" content', $path_to_file));
+                }
 
-        return $decoded_data;
+                return $decoded_data;
+
+            case (!empty($file_data['download_url'])):
+                return file_get_contents($file_data['download_url']);
+
+            default:
+                throw new RuntimeException('Could not get composer.json content from repo!');
+        }
     }
 
     /**
